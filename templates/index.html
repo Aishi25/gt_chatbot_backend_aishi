@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT Club Chatbot</title>
     <!-- Google Fonts - EB Garamond -->
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
         * {
             margin: 0;
@@ -42,11 +42,11 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(179, 163, 105, 0.3);
         }
 
         .chat-header {
-            background: linear-gradient(135deg, #3453f0 0%, #2f80e1 50%, #35bde1 100%);
+            background: linear-gradient(135deg, #4ba2e9 0%, #14609f 50%, #003057 100%);
             color: white;
             padding: 25px;
             text-align: center;
@@ -117,11 +117,21 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             font-family: 'EB Garamond', serif;
             font-size: 16px;
-            line-height: 1.5;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .message-content strong {
+            font-weight: 700;
+            color: #003057;
+        }
+        
+        .message-content em {
+            font-style: italic;
         }
 
         .message.user .message-content {
-            background: linear-gradient(135deg, #3453f0 0%, #2f80e1 50%, #35bde1 100%);
+            background: linear-gradient(135deg, #B3A369 0%, #8C7A4B 50%, #6B5D3F 100%);
             color: white;
             border-bottom-right-radius: 8px;
         }
@@ -129,7 +139,7 @@
         .message.bot .message-content {
             background: rgba(255, 255, 255, 0.9);
             color: #2c3e50;
-            border: 1px solid rgba(52, 83, 240, 0.2);
+            border: 1px solid rgba(179, 163, 105, 0.3);
             border-bottom-left-radius: 8px;
         }
 
@@ -140,7 +150,7 @@
             right: -8px;
             width: 0;
             height: 0;
-            border-left: 8px solid #35bde1;
+            border-left: 8px solid #6B5D3F;
             border-top: 8px solid transparent;
             border-bottom: 8px solid transparent;
         }
@@ -161,7 +171,7 @@
             padding: 25px;
             background: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(52, 83, 240, 0.2);
+            border-top: 1px solid rgba(179, 163, 105, 0.3);
         }
 
         .chat-input-form {
@@ -173,7 +183,7 @@
         .chat-input {
             flex: 1;
             padding: 15px 20px;
-            border: 2px solid rgba(52, 83, 240, 0.3);
+            border: 2px solid rgba(179, 163, 105, 0.4);
             border-radius: 30px;
             outline: none;
             font-size: 16px;
@@ -184,8 +194,8 @@
         }
 
         .chat-input:focus {
-            border-color: #3453f0;
-            box-shadow: 0 0 0 3px rgba(52, 83, 240, 0.1);
+            border-color: #003057;
+            box-shadow: 0 0 0 3px rgba(179, 163, 105, 0.2);
             background: rgba(255, 255, 255, 0.95);
         }
 
@@ -195,7 +205,7 @@
 
         .send-button {
             padding: 15px 30px;
-            background: linear-gradient(135deg, #3453f0 0%, #2f80e1 50%, #35bde1 100%);
+            background: #003057;
             color: white;
             border: none;
             border-radius: 30px;
@@ -204,12 +214,12 @@
             font-family: 'EB Garamond', serif;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(52, 83, 240, 0.3);
+            box-shadow: 0 4px 15px rgba(179, 163, 105, 0.4);
         }
 
         .send-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 83, 240, 0.4);
+            box-shadow: 0 6px 20px rgba(179, 163, 105, 0.5);
         }
 
         .send-button:active {
@@ -220,13 +230,13 @@
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: 0 2px 8px rgba(52, 83, 240, 0.2);
+            box-shadow: 0 2px 8px rgba(179, 163, 105, 0.3);
         }
 
         .loading {
             display: none;
             text-align: center;
-            color: #3453f0;
+            color: #B3A369;
             font-style: italic;
             margin: 15px 0;
             font-size: 16px;
@@ -236,16 +246,16 @@
 
         .welcome-message {
             text-align: center;
-            color: #3453f0;
+            color: #003057;
             margin: 25px 0;
             font-style: italic;
             font-size: 18px;
             font-family: 'EB Garamond', serif;
             font-weight: 400;
-            background: rgba(52, 83, 240, 0.1);
+            background: rgba(179, 163, 105, 0.15);
             padding: 20px;
             border-radius: 15px;
-            border: 1px solid rgba(52, 83, 240, 0.2);
+            border: 1px solid rgba(179, 163, 105, 0.3);
         }
 
         @media (max-width: 600px) {
@@ -258,6 +268,7 @@
                 max-width: 85%;
             }
         }
+        
     </style>
 </head>
 <body>
@@ -310,7 +321,17 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.textContent = content;
+            
+            if (isUser) {
+                contentDiv.textContent = content;
+            } else {
+                // For bot messages, format the text with line breaks and structure
+                const formattedContent = content
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold
+                    .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italics
+                    .replace(/\n/g, '<br>'); // Line breaks
+                contentDiv.innerHTML = formattedContent;
+            }
             
             messageDiv.appendChild(contentDiv);
             chatMessages.appendChild(messageDiv);
@@ -374,7 +395,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.fog.min.js"></script>
     
     <script>
-        // Initialize Vanta.js fog background with custom blue colors
+        // Initialize Vanta.js fog background with Georgia Tech colors
         VANTA.FOG({
             el: "#vanta-background",
             mouseControls: true,
@@ -382,10 +403,10 @@
             gyroControls: false,
             minHeight: 200.00,
             minWidth: 200.00,
-            highlightColor: 0x3453f0,
-            midtoneColor: 0x2f80e1,
-            lowlightColor: 0x35bde1,
-            baseColor: 0xffebeb,
+            highlightColor: 0xB3A369,  // Tech Gold
+            midtoneColor: 0x003057,    // Navy Blue
+            lowlightColor: 0xE8DCC3,   // Light Gold
+            baseColor: 0xF5F5F5,       // Off White
             blurFactor: 0.6,
             zoom: 1,
             speed: 1
