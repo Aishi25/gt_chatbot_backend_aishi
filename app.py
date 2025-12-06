@@ -367,31 +367,21 @@ def chat():
         # STEP 2 — identify the user and pick a session (TASK → add memory key)
         # TASK: get a stable user_id and a session_id (use default if missing)
         # history depends on these two keys.
-        # SOLUTION (uncomment the two lines below during the demo):
         user_id = get_user_id()
-        session_id = data.get('session_id', '').strip() or get_or_create_default_session(user_id)
-
-        # For the starter (no memory yet), keep harmless placeholders:
-        user_id = "demo-user"                 # will be replaced by SOLUTION
-        session_id = "demo-session"           # will be replaced by SOLUTION
-        # ------------------------------------------------------------------
+        session_id = str(time.time())
+        #session_id = data.get('session_id', '').strip() or get_or_create_default_session(user_id)
 
         # ------------------------------------------------------------------
         # STEP 3 — fetch last 8 turns to build short-term memory (TASK)
         # TASK: pull last 8 messages for (user_id, session_id), newest → oldest,
         #       then reverse and join into a readable conversation block.
-        # SOLUTION (uncomment this block during the demo):
         history = list(messages_collection.find(
             {"user_id": user_id, "session_id": session_id},
             {"_id": 0, "role": 1, "text": 1}
         ).sort("ts", -1).limit(8))
         history = list(reversed(history))
         history_text = "\n".join([f"{m['role'].title()}: {m['text']}" for m in history])
-
-        # Starter fallback (no memory yet):
-        history_text = ""                     # will be replaced by SOLUTION
         # ------------------------------------------------------------------
-
         # STEP 4 — get clubs for grounding (kept as-is)
         try:
             clubs = list(collection.find({}, {'_id': 0}))
@@ -413,7 +403,8 @@ def chat():
         # ------------------------------------------------------------------
         # STEP 6 — compose the prompt (TASK → add the memory block)
         # TASK: include {history_text} under “Previous conversation:”
-        system_prompt = f"""You are a helpful assistant for Georgia Tech students looking for clubs to join.
+        system_prompt = f"""
+You are a helpful assistant for Georgia Tech students looking for clubs to join.
 
 Here are some available clubs at Georgia Tech:
 
@@ -422,7 +413,13 @@ Here are some available clubs at Georgia Tech:
 Previous conversation:
 {history_text}
 
-Please help students find clubs that match their interests, majors, or goals."""
+Please help students find clubs match their interests, majors, or goals.
+
+Assume that any sentence containing "like", "interested in", "intrigues me", or similar phrasing 
+is the user expressing an interest. Store and use these interests in future responses.
+
+Always consider the entire conversation history.
+"""
         # ------------------------------------------------------------------
 
         # STEP 7 — call Gemini (kept as-is)
@@ -434,7 +431,6 @@ Please help students find clubs that match their interests, majors, or goals."""
         # ------------------------------------------------------------------
         # STEP 8 — persist both turns + touch session timestamp (TASK)
         # TASK: insert two docs into messages_collection and update sessions_collection.updated_at
-        # SOLUTION (uncomment this block during the demo):
         now = time.time()
         messages_collection.insert_one({
             "user_id": user_id, "session_id": session_id, "role": "user",
