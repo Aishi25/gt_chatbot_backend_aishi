@@ -368,8 +368,7 @@ def chat():
         # TASK: get a stable user_id and a session_id (use default if missing)
         # history depends on these two keys.
         user_id = get_user_id()
-        session_id = str(time.time())
-        #session_id = data.get('session_id', '').strip() or get_or_create_default_session(user_id)
+        session_id = data.get('session_id', '').strip() or get_or_create_default_session(user_id)
 
         # ------------------------------------------------------------------
         # STEP 3 — fetch last 8 turns to build short-term memory (TASK)
@@ -421,9 +420,8 @@ is the user expressing an interest. Store and use these interests in future resp
 Always consider the entire conversation history.
 """
         # ------------------------------------------------------------------
-
-        # STEP 7 — call Gemini (kept as-is)
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        # STEP 7 — call Gemini
+        model = genai.GenerativeModel("gemini-2.5-flash")
         full_prompt = f"{system_prompt}\n\nUser: {user_message}\n\nAssistant:"
         response = model.generate_content(full_prompt)
         bot_response = getattr(response, 'text', 'I could not generate a response.')
@@ -455,10 +453,17 @@ Always consider the entire conversation history.
         })
 
     except Exception as e:
+        print(f"ERROR IN CHAT: {str(e)}")  # ADD THIS
+        import traceback
+        traceback.print_exc()  # ADD THIS
         return jsonify({
             'success': False,
             'error': f'Unexpected error: {str(e)}'
         }), 500
+        #return jsonify({
+        #    'success': False,
+        #    'error': f'Unexpected error: {str(e)}'
+        #}), 500
 
 
 if __name__ == '__main__':
