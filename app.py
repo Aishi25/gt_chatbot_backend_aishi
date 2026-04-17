@@ -466,15 +466,8 @@ Always consider the entire conversation history.
         #}), 500
 
 
-if __name__ == '__main__':
-    print("\n" + "="*50)
-    print("Starting Flask Server...")
-    print("="*50)
-    print(f"Server running on: http://localhost:8001")
-    print(f"Debug mode: ON")
-    print(f"Gemini API: {'✓ Available' if GEMINI_AVAILABLE else '✗ Not configured'}")
-    print("="*50 + "\n")
-    app.run(debug=True, port=8001)
-else:
-    application = app
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
 # End of Aishi's Chatbot Code - Jan 1, 2026!!
